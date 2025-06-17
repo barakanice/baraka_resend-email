@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="rw">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Form ya Baraka - Ohereza Amakuru</title>
+  <style>
+    body {
+      background: #f3f4f6;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    form {
+      background: white;
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #1f2937;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 5px;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 5px #2563ebaa;
+    }
+    button {
+      width: 100%;
+      background-color: #2563eb;
+      color: white;
+      font-weight: bold;
+      padding: 14px;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      transition: background-color 0.3s;
+    }
+    button:disabled {
+      background-color: #93c5fd;
+      cursor: not-allowed;
+    }
+    button:hover:not(:disabled) {
+      background-color: #1e40af;
+    }
+    .spinner {
+      border: 3px solid #93c5fd;
+      border-top: 3px solid white;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      animation: spin 1s linear infinite;
+      display: none;
+    }
+    .show-spinner {
+      display: inline-block;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    #status {
+      text-align: center;
+      margin-top: 15px;
+      font-weight: 600;
+    }
+    #status.success {
+      color: #16a34a;
+    }
+    #status.error {
+      color: #dc2626;
+    }
+  </style>
+</head>
+<body>
+
+  <form id="contact-form">
+    <h2>Baraka website</h2>
+
+    <input type="text" name="name" placeholder="Izina ryawe" required />
+    <input type="email" name="email" placeholder="Email yawe" required />
+    <textarea name="message" placeholder="Andika ubutumwa bwawe..." rows="5" required></textarea>
+
+    <button type="submit" id="submit-btn">
+      <div class="spinner" id="spinner"></div>
+      Ohereza
+    </button>
+
+    <p id="status"></p>
+  </form>
+
+<script>
+  const form = document.getElementById('contact-form');
+  const submitBtn = document.getElementById('submit-btn');
+  const spinner = document.getElementById('spinner');
+  const status = document.getElementById('status');
+
+  const API_URL = 'https://api.web3forms.com/submit';
+  const ACCESS_KEY = '08a9009c-2ec4-436c-a669-01a80b07d460';  // Shyiramo access key yawe
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    status.textContent = '';
+    status.className = '';
+
+    submitBtn.disabled = true;
+    spinner.classList.add('show-spinner');
+
+    // Guteranya data yo kohereza
+    const formData = new FormData(form);
+
+    // Shyiramo access_key, subject na from_name muri FormData
+    formData.append('access_key', ACCESS_KEY);
+    formData.append('subject', ' Rukundo Baraka Nice');
+    formData.append('from_name', 'Rukundo Baraka NIce');
+    formData.append('redirect', ''); // Ntukoreshe redirect muri JS, tuzabimenya
+
+    try {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        body: formData,
+        headers: { Accept: 'application/json' }
+      });
+
+      const json = await res.json();
+
+      if (res.ok) {
+        status.textContent = 'Ubutumwa bwoherejwe neza. Urakoze!';
+        status.classList.add('success');
+        form.reset();
+      } else {
+        status.textContent = json.message || 'Habaye ikibazo mu kohereza ubutumwa.';
+        status.classList.add('error');
+      }
+    } catch (err) {
+      status.textContent = 'Habaye ikibazo cyo kohereza ubutumwa. Gerageza ukundi.';
+      status.classList.add('error');
+    }
+
+    submitBtn.disabled = false;
+    spinner.classList.remove('show-spinner');
+  });
+</script>
+
+</body>
+</html>
